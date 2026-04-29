@@ -1,0 +1,60 @@
+# ==========================================
+# Environment Variables — NEVER commit these
+# ==========================================
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# Claude Code configuration
+# ==========================================
+.claude/
+
+# ==========================================
+# Node.js
+# ==========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# ==========================================
+# Build outputs
+# ==========================================
+dist/
+dist-ssr/
+build/
+
+# ==========================================
+# Backend: downloaded/processed video files
+# ==========================================
+backend/downloads/raw/
+backend/downloads/assets/
+backend/downloads/final/
+
+# ==========================================
+# Backend: binary executables (large files)
+# ==========================================
+backend/bin/*.exe
+
+# ==========================================
+# Frontend: Vite cache
+# ==========================================
+frontend/.vite/
+
+# ==========================================
+# OS & Editor
+# ==========================================
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.local
