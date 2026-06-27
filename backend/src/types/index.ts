@@ -17,6 +17,7 @@ export type JobStatus =
   | 'translating'
   | 'voicegen'
   | 'rendering'
+  | 'uploading_yt'
   | 'done'
   | 'error';
 
@@ -24,12 +25,16 @@ export interface Job {
   id: string;
   videoId: string;
   videoTitle: string;
+  videoTitleId?: string;       // Translated Indonesian title
+  videoDescription: string;    // Original description (for YT upload)
   videoUrl: string;
   status: JobStatus;
   progress: number; // 0-100
   error?: string;
   outputPath?: string;
   outputFileName?: string;
+  youtubeVideoId?: string;     // YouTube video ID after upload
+  youtubeUrl?: string;         // Full YouTube URL after upload
   createdAt: string;
   updatedAt: string;
   logs: string[];

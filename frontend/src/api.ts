@@ -10,11 +10,11 @@ export const api = {
       body: JSON.stringify({ url, page, pageSize }),
     }).then(r => r.json()),
 
-  createJobs: (videos: VideoMetadata[]) =>
+  createJobs: (videos: VideoMetadata[], startFrom: number) =>
     fetch(`${BASE}/jobs`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videos }),
+      body: JSON.stringify({ videos, startFrom }),
     }).then(r => r.json()),
 
   getJobs: () => fetch(`${BASE}/jobs`).then(r => r.json()),

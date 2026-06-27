@@ -7,7 +7,7 @@ import type { Job, VideoMetadata } from '../types/index';
 import { downloadVideo } from './ytdlp.service';
 import { extractAudio, getVideoDimensions, remasterVideo } from '../processor/ffmpeg.processor';
 import { transcribeAudio, transcribeAudioWordLevel } from './whisper.service';
-import { translateSrt } from './translate.service';
+import { translateSrt, translateText } from './translate.service';
 import { synthesizeSpeech, adjustAudioDuration } from './elevenlabs.service';
 import { writeSrt } from '../processor/srt.generator';
 
@@ -16,6 +16,10 @@ export const jobEvents = new EventEmitter();
 const jobs = new Map<string, Job>();
 const limiter = pLimit(3);
 let jobCounter = 0;
+
+export function setJobCounter(n: number): void {
+  jobCounter = n;
+}
 
 function sanitizeFilename(title: string): string {
   return title.replace(/[/\\:*?"<>|]/g, '').trim().slice(0, 80);
@@ -36,6 +40,7 @@ export function createJob(video: VideoMetadata): Job {
     id: uuidv4(),
     videoId: video.id,
     videoTitle: video.title,
+    videoDescription: video.description ?? '',
     videoUrl: video.url,
     status: 'pending',
     progress: 0,
@@ -91,8 +96,6 @@ export async function processJob(jobId: string): Promise<void> {
     const voicePath = path.join(DOWNLOADS_DIR, 'assets', `${jobId}_voice.mp3`);
     const voiceAdjustedPath = path.join(DOWNLOADS_DIR, 'assets', `${jobId}_voice_adj.mp3`);
     const num = ++jobCounter;
-    const outputFileName = `#${num} ${sanitizeFilename(job.videoTitle)}.mp4`;
-    const outputPath = path.join(DOWNLOADS_DIR, 'final', outputFileName);
 
     // 1. Download
     updateJob(jobId, { status: 'downloading', progress: 10 });
@@ -115,12 +118,20 @@ export async function processJob(jobId: string): Promise<void> {
     await writeSrt(enEntries, enSrtPath);
     addLog(jobId, `Transcription complete — ${enEntries.length} entries`);
 
-    // 4. Translate
+    // 4. Translate subtitles + title
     updateJob(jobId, { status: 'translating', progress: 50 });
-    addLog(jobId, 'Translating subtitles to Indonesian');
-    const idEntries = await translateSrt(enEntries, 'ID');
+    addLog(jobId, 'Translating subtitles and title to Indonesian');
+    const [idEntries, videoTitleId] = await Promise.all([
+      translateSrt(enEntries, 'ID'),
+      translateText(job.videoTitle, 'ID'),
+    ]);
     await writeSrt(idEntries, idSrtPath);
-    addLog(jobId, 'Translation complete');
+    updateJob(jobId, { videoTitleId });
+    addLog(jobId, `Translation complete — judul: "${videoTitleId}"`);
+
+    // Determine output filename using Indonesian title
+    const outputFileName = `#${num} ${sanitizeFilename(videoTitleId)}.mp4`;
+    const outputPath = path.join(DOWNLOADS_DIR, 'final', outputFileName);
 
     // 5. Voice generation
     updateJob(jobId, { status: 'voicegen', progress: 65 });

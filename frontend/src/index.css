@@ -1,13 +1,52 @@
-/* Global reset — design tokens and component styles live in App.css */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@import "tailwindcss";
+@import "@fortawesome/fontawesome-free/css/all.css";
+
+@theme {
+  --font-sans: "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Semantic Colors */
+  --color-primary: #f8fafc;
+  --color-secondary: #ffffff;
+  --color-tertiary: #f1f5f9;
+  --color-primary-text: #0f172a;
+  --color-secondary-text: #64748b;
+
+  /* Brand Colors */
+  --color-navy: #1a2a5e;
+  --color-accent: #3b82f6;
+  --color-accent-light: #eff6ff;
+  --color-success: #22c55e;
+  --color-success-light: #f0fdf4;
+  --color-danger: #ef4444;
+  --color-danger-light: #fef2f2;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fffbeb;
+  --color-purple: #8b5cf6;
+  --color-purple-light: #f5f3ff;
+  --color-border: #e2e8f0;
+
+  /* Spacing */
+  --spacing-sidebar: 260px;
+  --spacing-header: 60px;
+  --spacing-footer: 48px;
+
+  /* Border Radius */
+  --radius-custom: 2px;
 }
 
-html,
-body {
-  height: 100%;
+@layer base {
+  :root {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.1;
+  }
 }

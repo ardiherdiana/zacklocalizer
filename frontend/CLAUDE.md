@@ -34,7 +34,7 @@ Untuk menghilangkan gangguan visual dari subtitle asli, gunakan teknik **Black B
 - **Layer 3 (Subtitles):** Burn-in subtitle Indonesia di tengah-tengah Black Bar menggunakan filter `subtitles`.
 - **Layer 4 (Branding):** Tambahkan text overlay statis:
     - *"Credit: Zack D. Films"* (Top/Center)
-    - *"Subscribe untuk konten lainnya"* (Bottom/Center - di bawah subtitle).
+    - *"Follow untuk konten lainnya"* (Bottom/Center - di bawah subtitle).
 
 ## 📂 Directory Structure
 ```text

@@ -1,17 +1,21 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { enqueueJob, getAllJobs, getJob, deleteJob, deleteAllJobs, jobEvents } from '../services/job.service';
+import { enqueueJob, getAllJobs, getJob, deleteJob, deleteAllJobs, jobEvents, setJobCounter } from '../services/job.service';
 import type { Job, VideoMetadata } from '../types/index';
 
 const router = Router();
 
 // POST /api/jobs — enqueue jobs for an array of videos
 router.post('/', (req: Request, res: Response): void => {
-  const { videos } = req.body as { videos?: VideoMetadata[] };
+  const { videos, startFrom } = req.body as { videos?: VideoMetadata[]; startFrom?: number };
 
   if (!Array.isArray(videos) || videos.length === 0) {
     res.status(400).json({ error: 'Request body must include a non-empty "videos" array.' });
     return;
+  }
+
+  if (typeof startFrom === 'number' && startFrom >= 1) {
+    setJobCounter(startFrom - 1);
   }
 
   const createdJobs = videos.map((video) => enqueueJob(video));

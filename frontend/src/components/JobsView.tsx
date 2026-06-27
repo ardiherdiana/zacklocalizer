@@ -11,21 +11,26 @@ const STATUS_LABELS: Record<JobStatus, string> = {
   translating: 'Translating',
   voicegen: 'Voice Gen',
   rendering: 'Rendering',
+  uploading_yt: 'Uploading YT',
   done: 'Done',
   error: 'Error',
 };
 
-const STATUS_CLASSES: Record<JobStatus, string> = {
-  pending: 'badge--pending',
-  downloading: 'badge--downloading',
-  extracting_audio: 'badge--extracting',
-  transcribing: 'badge--transcribing',
-  translating: 'badge--translating',
-  voicegen: 'badge--voicegen',
-  rendering: 'badge--rendering',
-  done: 'badge--done',
-  error: 'badge--error',
+const STATUS_BADGE: Record<JobStatus, string> = {
+  pending:         'bg-tertiary text-secondary-text',
+  downloading:     'bg-accent-light text-accent',
+  extracting_audio:'bg-accent-light text-accent',
+  transcribing:    'bg-purple-light text-purple',
+  translating:     'bg-warning-light text-warning',
+  voicegen:        'bg-purple-light text-purple',
+  rendering:       'bg-warning-light text-warning',
+  uploading_yt:    'bg-accent-light text-accent',
+  done:            'bg-success-light text-success',
+  error:           'bg-danger-light text-danger',
 };
+
+const btnBase =
+  'inline-flex items-center justify-center border-none rounded-lg cursor-pointer text-sm font-semibold px-[18px] py-[9px] whitespace-nowrap transition-colors disabled:opacity-45 disabled:cursor-not-allowed';
 
 export function JobsView() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -50,75 +55,64 @@ export function JobsView() {
     return () => clearInterval(interval);
   }, [fetchJobs]);
 
-  function handleRefresh() {
-    setLoading(true);
-    fetchJobs();
-  }
-
   async function handleDeleteJob(id: string) {
     await api.deleteJob(id);
     setJobs(prev => prev.filter(j => j.id !== id));
   }
 
-  async function handleDeleteAll() {
-    if (!confirm('Hapus semua jobs?')) return;
-    await api.deleteAllJobs();
-    setJobs([]);
-  }
-
-  function handleDownloadAll() {
-    const doneJobs = jobs.filter(j => j.status === 'done' && j.outputPath);
-    doneJobs.forEach(job => {
-      window.open(`http://localhost:3001/downloads/final/${encodeURIComponent(job.outputFileName!)}`, '_blank');
-    });
-  }
-
-  const doneCount = jobs.filter(j => j.status === 'done').length;
-
   return (
-    <div className="view">
-      <div className="toolbar">
-        <div className="toolbar__left">
-          <span className="muted">{jobs.length} job{jobs.length !== 1 ? 's' : ''}</span>
-        </div>
-        <div className="toolbar__right">
-          {doneCount > 0 && (
-            <button className="btn btn--primary" onClick={handleDownloadAll}>
-              Download All ({doneCount})
-            </button>
-          )}
-          {jobs.length > 0 && (
-            <button className="btn btn--danger" onClick={handleDeleteAll}>
-              Delete All
-            </button>
-          )}
-          <button className="btn btn--secondary" onClick={handleRefresh} disabled={loading}>
-            {loading ? 'Refreshing…' : 'Refresh'}
-          </button>
-        </div>
+    <div className="flex flex-col gap-5">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <span className="text-secondary-text text-[13px]">
+          {jobs.length} job{jobs.length !== 1 ? 's' : ''}
+        </span>
       </div>
 
-      {error && <p className="error-msg">{error}</p>}
+      {error && (
+        <p className="bg-danger-light border border-danger/30 rounded-lg text-danger px-4 py-3 text-sm">
+          {error}
+        </p>
+      )}
 
       {!loading && jobs.length === 0 && !error && (
-        <div className="empty-state">
+        <div className="py-16 text-center text-secondary-text">
           <p>No jobs yet. Go to the Channel tab to select and process videos.</p>
         </div>
       )}
 
-      <div className="jobs-list">
+      {/* Job list */}
+      <div className="flex flex-col gap-3">
         {jobs.map(job => (
-          <div key={job.id} className={`job-card${job.status === 'error' ? ' job-card--error' : ''}`}>
-            <div className="job-card__header">
-              <span className="job-card__title" title={job.videoTitle}>
-                {job.videoTitle}
-              </span>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <span className={`badge ${STATUS_CLASSES[job.status]}`}>
+          <div
+            key={job.id}
+            className={`bg-secondary rounded-xl px-5 py-4 flex flex-col gap-2.5 border transition-colors ${
+              job.status === 'error' ? 'border-danger/35' : 'border-border'
+            }`}
+          >
+            {/* Header row */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <p
+                  className="text-sm font-semibold text-primary-text overflow-hidden text-ellipsis whitespace-nowrap"
+                  title={job.videoTitle}
+                >
+                  {job.videoTitle}
+                </p>
+                {job.videoTitleId && job.videoTitleId !== job.videoTitle && (
+                  <p className="text-[12px] text-secondary-text truncate" title={job.videoTitleId}>
+                    → {job.videoTitleId}
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span
+                  className={`inline-flex items-center text-[11px] font-bold tracking-[0.4px] uppercase px-2 py-0.5 rounded-full whitespace-nowrap ${STATUS_BADGE[job.status]}`}
+                >
                   {STATUS_LABELS[job.status]}
                 </span>
                 <button
-                  className="btn btn--danger btn--sm"
+                  className="inline-flex items-center justify-center w-6 h-6 rounded bg-danger/10 text-danger hover:bg-danger hover:text-white text-xs font-bold transition-colors cursor-pointer border-none"
                   onClick={() => handleDeleteJob(job.id)}
                   title="Delete job"
                 >
@@ -127,32 +121,36 @@ export function JobsView() {
               </div>
             </div>
 
-            <div className="progress-bar-wrap">
+            {/* Progress bar */}
+            <div className="w-full h-1.5 bg-tertiary rounded-full overflow-hidden">
               <div
-                className={`progress-bar${job.status === 'done' ? ' progress-bar--done' : ''}${job.status === 'error' ? ' progress-bar--error' : ''}`}
+                className={`h-full rounded-full transition-[width] duration-300 ease-out ${
+                  job.status === 'done'
+                    ? 'bg-success'
+                    : job.status === 'error'
+                    ? 'bg-danger'
+                    : 'bg-accent animate-pulse'
+                }`}
                 style={{ width: `${job.progress}%` }}
               />
             </div>
-            <div className="job-card__meta">
-              <span className="muted">{job.progress}%</span>
-              <span className="muted">Created {formatDate(job.createdAt)}</span>
+
+            {/* Meta row */}
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] text-secondary-text">{job.progress}%</span>
+              <span className="text-[13px] text-secondary-text">Created {formatDate(job.createdAt)}</span>
             </div>
 
-            {job.status === 'done' && job.outputPath && (
-              <div className="job-card__download">
-                <a
-                  className="btn btn--primary"
-                  href={`http://localhost:3001/downloads/final/${encodeURIComponent(job.outputFileName!)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Download
-                </a>
-              </div>
+            {job.status === 'done' && job.outputFileName && (
+              <p className="text-[12px] text-success bg-success-light rounded px-2.5 py-1.5 truncate">
+                ✓ {job.outputFileName}
+              </p>
             )}
 
             {job.status === 'error' && job.error && (
-              <p className="job-card__error-msg">{job.error}</p>
+              <p className="text-[12px] text-danger bg-danger-light rounded px-2.5 py-1.5">
+                {job.error}
+              </p>
             )}
           </div>
         ))}

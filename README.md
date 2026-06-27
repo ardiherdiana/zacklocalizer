@@ -154,4 +154,4 @@ Setiap video diproses dengan 4 layer overlay:
 1. **Video asli** — sebagai base layer
 2. **Black bar mask** — `drawbox` solid hitam di 75% bawah frame untuk menutup subtitle asli
 3. **Subtitle Indonesia** — burn-in di tengah black bar menggunakan filter `subtitles`
-4. **Branding overlay** — teks statis *"Credit: Zack D. Films"* (atas) dan *"Subscribe untuk konten lainnya"* (bawah)
+4. **Branding overlay** — teks statis *"Credit: Zack D. Films"* (atas) dan *"Follow untuk konten lainnya"* (bawah)

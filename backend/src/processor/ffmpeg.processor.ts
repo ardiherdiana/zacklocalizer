@@ -85,8 +85,8 @@ export function remasterVideo(options: RemasterOptions): Promise<void> {
     `[boxed]subtitles=${escapedSrt}:force_style='Fontname=${fontName},Fontsize=13,Alignment=2,MarginV=35,PrimaryColour=&Hffffff&,Bold=1':fontsdir=${fontsDir}[subbed]`,
     // 3. Credit watermark atas — lebih besar
     `[subbed]drawtext=text='Credit\\: Zack D. Films':fontfile=${fontFile}:fontcolor=white:fontsize=44:x=(w-text_w)/2:y=20[branded]`,
-    // 4. Subscribe CTA bawah — lebih besar
-    `[branded]drawtext=text='Subscribe untuk konten lainnya':fontfile=${fontFile}:fontcolor=yellow:fontsize=40:x=(w-text_w)/2:y=h*0.93[final]`,
+    // 4. Follow CTA bawah — lebih besar
+    `[branded]drawtext=text='Follow untuk konten lainnya':fontfile=${fontFile}:fontcolor=yellow:fontsize=40:x=(w-text_w)/2:y=h*0.93[final]`,
   ];
 
   return new Promise((resolve, reject) => {

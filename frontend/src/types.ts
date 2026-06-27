@@ -11,18 +11,21 @@ export interface VideoMetadata {
 
 export type JobStatus =
   | 'pending' | 'downloading' | 'extracting_audio' | 'transcribing'
-  | 'translating' | 'voicegen' | 'rendering' | 'done' | 'error';
+  | 'translating' | 'voicegen' | 'rendering' | 'uploading_yt' | 'done' | 'error';
 
 export interface Job {
   id: string;
   videoId: string;
   videoTitle: string;
+  videoTitleId?: string;
   videoUrl: string;
   status: JobStatus;
   progress: number;
   error?: string;
   outputPath?: string;
   outputFileName?: string;
+  youtubeVideoId?: string;
+  youtubeUrl?: string;
   createdAt: string;
   updatedAt: string;
   logs: string[];
